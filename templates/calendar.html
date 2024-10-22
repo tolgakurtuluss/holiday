@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ country }} Holidays - {{ year }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <h1>Holidays in {{ country }} for {{ year }}</h1>
+    
+    <div class="year-selection-container">
+        <h3>Select Year:</h3>
+        <div class="year-links">
+            {% for y in years %}
+                <a href="/calendar?country={{ country }}&year={{ y }}" class="year-link">{{ y }}</a>
+                {% if not loop.last %} | {% endif %}
+            {% endfor %}
+            <a href="/" class="back-link">Back to Home Page</a>
+        </div>
+    
+        <div class="button-container">
+            <a href="/download?country={{ country }}&year={{ year }}" class="download-button">
+                <i class="fas fa-file-download"></i> Download Data
+            </a>
+            <a href="/api/holidays?country={{ country }}&year={{ year }}" class="json-button">
+                <i class="fas fa-file-code"></i> View JSON Data
+            </a>
+        </div>
+    </div>
+    
+
+    <div class="holiday-table-container">
+        <h3>Holidays</h3>
+        <table id="holidayTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Details</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for holiday in holidays %}
+                <tr>
+                    <td>{{ holiday['Date'] }}</td>
+                    <td>{{ holiday['Day'] }}</td>
+                    <td>{{ holiday['Name'] }}</td>
+                    <td>{{ holiday['Type'] }}</td>
+                    <td>{{ holiday['Details'] }}</td>
+                    <td><a href="{{ holiday['Link'] }}" target="_blank" class="holiday-link">Link</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    
+    <div class="footer">
+        <p>&copy; 2024 Holiday Calendar. All rights reserved.</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#holidayTable').DataTable({
+                "pagingType": "full_numbers", // Full numbers for pagination
+                "lengthMenu": [75, 100], // Options for number of entries
+                "language": {
+                    "search": "Filter records:", // Custom search label
+                    "lengthMenu": "Show _MENU_ entries", // Custom length menu
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries", // Custom info
+                    "infoEmpty": "No entries available", // Custom info when empty
+                    "infoFiltered": "(filtered from _MAX_ total entries)" // Custom filtered info
+                }
+            });
+        });
+    </script>
+</body>
+</html>

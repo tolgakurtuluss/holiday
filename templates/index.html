@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <h1>Holiday Calendar</h1>
+    <form action="/calendar" method="get">
+        <label for="country">Select Country:</label>
+        <select name="country" id="country" required>
+            <option value="" disabled selected>Select a country</option>
+            {% for country in countries %}
+                <option value="{{ country }}">{{ country }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="year">Select Year:</label>
+        <select name="year" id="year" required>
+            <option value="" disabled selected>Select a year</option>
+            {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit"><i class="fas fa-calendar-alt"></i> Show Calendar</button>
+    </form>
+
+    <div class="random-links">
+        <h2>Discover More</h2>
+        {% for country, year in random_links %}
+            <div class="link-item">
+                <a href="/calendar?country={{ country }}&year={{ year }}">
+                    Calendar of {{ country }} - {{ year }}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Holiday Calendar. All rights reserved.</p>
+    </div>
+</body>
+</html>

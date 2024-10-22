@@ -2,8 +2,10 @@ import os
 import random
 from flask import Flask, render_template, request, send_file, jsonify
 from pymongo import MongoClient
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Connect to MongoDB
 client = MongoClient(os.environ.get("MONGODB_URI"))  # Update with your MongoDB connection string
@@ -51,13 +53,16 @@ def download():
 
     # Fetch filtered data for the download
     filtered_data = list(collection.find({'country': country, 'Year': int(year)}))
+    
+    if not filtered_data:
+        return "No data found for the specified country and year.", 404
 
     # Create a DataFrame and save to Excel
     df = pd.DataFrame(filtered_data)
-    file_path = f'temp_holidays_{country}_{year}.xlsx'
+    file_path = f'holidays_{country}_{year}.xlsx'
     df.to_excel(file_path, index=False)
 
-    return send_file(file_path, as_attachment=True)
+    return send_file(file_path, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 @app.route('/api/holidays')
 def api_holidays():
@@ -66,12 +71,16 @@ def api_holidays():
 
     # Fetch filtered data for the API
     filtered_data = list(collection.find({'country': country, 'Year': int(year)}))
+    
+    if not filtered_data:
+        return jsonify({"error": "No data found for the specified country and year."}), 404
 
     # Process the data
     for holiday in filtered_data:
         holiday['Date'] = holiday['Date'].strftime('%d.%m.%Y')  # Ensure Date is in string format
 
     return jsonify(filtered_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,3 +2,4 @@ pymongo
 flask
 Gunicorn
 flask_cors
+pandas

@@ -1,0 +1,4 @@
+# Ignore vendored CSS files
+static/css/* linguist-vendored
+# Explicitly mark Python
+*.py linguist-language=Python

@@ -1,6 +1,11 @@
-# Holiday Calendar Application for Aviation Professionals
+# Holiday Calendar Application
 
 This is a Flask-based web application designed to provide aviation professionals with accurate and easily accessible holiday information for various countries and years. The application fetches data from an Excel file, allowing users to quickly view holiday calendars, download data for offline use, and access the information programmatically via a RESTful API.
+
+## UI Appearance
+![example1.jpg](example1.jpg)
+
+![example2.jpg](example2.jpg)
 
 ## Features
 

@@ -1,22 +1,22 @@
 import os
 import random
 from flask import Flask, render_template, request, send_file, jsonify
-from pymongo import MongoClient
-from flask_cors import CORS
 import pandas as pd
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-# Connect to MongoDB
-client = MongoClient(os.environ.get("MONGODB_URI"))  # Update with your MongoDB connection string
-db = client['holiday_db']  # Use the same database
-collection = db['holidays']  # Use the same collection
+# Excel file path
+EXCEL_FILE_PATH = 'data/data.xlsx'
+
+# Load data from Excel file
+df = pd.read_excel(EXCEL_FILE_PATH)
+data = df.to_dict('records')
 
 @app.route('/')
 def index():
-    # Fetch all holidays from MongoDB
-    data = list(collection.find({}))
+    # Fetch all holidays from Excel data
     
     countries = list(set(item['country'] for item in data))
     years = list(set(item['Year'] for item in data))
@@ -35,15 +35,15 @@ def calendar():
     country = request.args.get('country')
     year = request.args.get('year')
 
-    # Fetch filtered data from MongoDB
-    filtered_data = list(collection.find({'country': country, 'Year': int(year)}))
+    # Fetch filtered data from Excel data
+    filtered_data = [item for item in data if item['country'] == country and str(item['Year']) == year]
 
     # Process the data
     for holiday in filtered_data:
-        holiday['Date'] = holiday['Date'].strftime('%Y-%m-%d')  # Ensure Date is in string format
+        holiday['Date'] = pd.to_datetime(holiday['Date']).strftime('%Y-%m-%d')  # Ensure Date is in string format
 
     # Get the unique years from the dataset
-    years = list(set(item['Year'] for item in collection.find({})))
+    years = list(set(item['Year'] for item in data))
 
     return render_template('calendar.html', holidays=filtered_data, country=country, year=year, years=years)
 
@@ -52,14 +52,14 @@ def download():
     country = request.args.get('country')
     year = request.args.get('year')
 
-    # Fetch filtered data for the download
-    filtered_data = list(collection.find({'country': country, 'Year': int(year)}))
+    # Fetch filtered data from Excel data
+    filtered_data = [item for item in data if item['country'] == country and str(item['Year']) == year]
     
     if not filtered_data:
         return "No data found for the specified country and year.", 404
 
     # Create a DataFrame and save to Excel
-    df = .DataFrame(filtered_data)
+    df = pd.DataFrame(filtered_data)
     file_path = f'holidays_{country}_{year}.xlsx'
     df.to_excel(file_path, index=False)
 
@@ -70,15 +70,15 @@ def api_holidays():
     country = request.args.get('country')
     year = request.args.get('year')
 
-    # Fetch filtered data for the API
-    filtered_data = list(collection.find({'country': country, 'Year': int(year)}))
+    # Fetch filtered data from Excel data
+    filtered_data = [item for item in data if item['country'] == country and str(item['Year']) == year]
     
     if not filtered_data:
         return jsonify({"error": "No data found for the specified country and year."}), 404
 
     # Process the data
     for holiday in filtered_data:
-        holiday['Date'] = holiday['Date'].strftime('%d.%m.%Y')  # Ensure Date is in string format
+        holiday['Date'] = pd.to_datetime(holiday['Date']).strftime('%d.%m.%Y')  # Ensure Date is in string format
 
     return jsonify(filtered_data)
 
